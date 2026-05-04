@@ -32,7 +32,7 @@ jobs:
 
       # 2. Scansione dell'immagine appena creata
       - name: Run Trivy vulnerability scanner (Image)
-        uses: aquasecurity/trivy-action@v0.28.0 
+        uses: aquasecurity/trivy-action@v0.36.0 
         with:
           image-ref: 'php-goof:${{ github.sha }}'
           format: 'sarif'
@@ -42,7 +42,7 @@ jobs:
 
       # 3. Scansione del File System (per le dipendenze PHP/Composer)
       - name: Run Trivy vulnerability scanner (Repo)
-        uses: aquasecurity/trivy-action@v0.28.0 # master
+        uses: aquasecurity/trivy-action@v0.36.0 # master
         with:
           scan-type: 'fs'
           format: 'sarif'
@@ -65,8 +65,3 @@ jobs:
         with:
           sarif_file: 'trivy-fs-results.sarif'
           category: 'trivy-fs'
-
-      # 5. Esempio di Push (solo se vuoi caricarlo da qualche parte)
-      # - name: Push image (optional)
-      #   run: |
-      #     # Qui andrebbe la logica di login e push se i test passano
