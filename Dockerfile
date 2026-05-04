@@ -6,20 +6,23 @@ LABEL org.opencontainers.image.licenses="gpl-3.0"
 
 WORKDIR /var/www/html
 
-# https://www.php.net/manual/en/image.installation.php
+# Installazione dipendenze di sistema
 RUN apt-get update \
  && export DEBIAN_FRONTEND=noninteractive \
- && apt-get install -y zlib1g-dev libpng-dev libjpeg-dev libfreetype6-dev iputils-ping git \
+ && apt-get install -y zlib1g-dev libpng-dev libjpeg-dev libfreetype6-dev iputils-ping git unzip \
  && apt-get clean -y && rm -rf /var/lib/apt/lists/* \
  && docker-php-ext-configure gd --with-jpeg --with-freetype \
  && a2enmod rewrite \
- # Use pdo_sqlite instead of pdo_mysql if you want to use sqlite
  && docker-php-ext-install gd mysqli pdo pdo_mysql
 
+# Installazione Composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+# Copia dei file e configurazione permessi
 COPY --chown=www-data:www-data . .
 COPY --chown=www-data:www-data config/config.inc.php.dist config/config.inc.php
 
-# This is configuring the stuff for the API
+# Installazione dipendenze API (DVWA utilizza Slim framework qui)
+# Aggiungiamo 'unzip' sopra e usiamo --no-dev per risparmiare memoria
 RUN cd /var/www/html/vulnerabilities/api \
- && composer install \
+ && COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction --no-progress --no-dev
