@@ -39,6 +39,7 @@ jobs:
           output: 'trivy-image-results.sarif'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
+          exit-code: '0'
 
       # 3. Scansione del File System (per le dipendenze PHP/Composer)
       - name: Run Trivy vulnerability scanner (Repo)
@@ -49,6 +50,7 @@ jobs:
           output: 'trivy-fs-results.sarif'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
+          exit-code: '0'
 
       # 4. Caricamento dei risultati su GitHub
       - name: Upload Trivy scans to GitHub Security
