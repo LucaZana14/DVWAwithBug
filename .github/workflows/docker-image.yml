@@ -28,10 +28,12 @@ jobs:
 
       # 1. Build dell'immagine locale (senza caricarla ancora)
       - name: Build Docker image
+        id: build
         run: docker build -t php-goof:${{ github.sha }} .
 
       # 2. Scansione dell'immagine appena creata
       - name: Run Trivy vulnerability scanner (Image)
+        if: steps.build.outcome == 'success'
         uses: aquasecurity/trivy-action@v0.36.0 
         with:
           image-ref: 'php-goof:${{ github.sha }}'
@@ -41,7 +43,8 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       # 3. Scansione del File System (per le dipendenze PHP/Composer)
-      - name: Run Trivy vulnerability scanner (Repo)
+      - name: Run Trivy vulnerability scanner (FS)
+        if: always()
         uses: aquasecurity/trivy-action@v0.36.0 # master
         with:
           scan-type: 'fs'
@@ -53,9 +56,8 @@ jobs:
       # 4. Caricamento dei risultati su GitHub
       - name: Upload Trivy scans to GitHub Security
         uses: github/codeql-action/upload-sarif@v4 
-        if: always()
+        if: steps.build.outcome == 'success'
         with:
-          # Carichiamo entrambi i report (Trivy permette di farlo unendo i file o caricandoli separatamente)
           sarif_file: 'trivy-image-results.sarif'
           category: 'trivy-image'
 

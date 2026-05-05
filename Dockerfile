@@ -25,4 +25,11 @@ COPY --chown=www-data:www-data config/config.inc.php.dist config/config.inc.php
 # Installazione dipendenze API (DVWA utilizza Slim framework qui)
 # Aggiungiamo 'unzip' sopra e usiamo --no-dev per risparmiare memoria
 RUN cd /var/www/html/vulnerabilities/api \
- && COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction --no-progress --no-dev
+    && php -d memory_limit=-1 /usr/local/bin/composer install \
+    --no-interaction --no-progress --no-dev --optimize-autoloader \
+    2>&1 || (echo "Retry con swap..." && \
+    fallocate -l 512M /swapfile && chmod 600 /swapfile && \
+    mkswap /swapfile && swapon /swapfile && \
+    php -d memory_limit=-1 /usr/local/bin/cßomposer install \
+    --no-interaction --no-progress --no-dev && \
+    swapoff /swapfile && rm /swapfile)
