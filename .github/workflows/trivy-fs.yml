@@ -32,23 +32,30 @@ jobs:
           php-version: '8.2'
           tools: composer
 
-      # ← senza questo step Trivy non vede vendor/ e non trova nulla
-      - name: Install Composer dependencies
+      - name: Rigenera composer.lock per PHP 8.2
         run: |
           cd vulnerabilities/api
-          composer install --no-dev --no-interaction --no-progress
+          composer update --no-dev --no-interaction --no-progress
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add composer.json composer.lock
+          git diff --staged --quiet || git commit -m "chore: fix composer.lock for PHP 8.2"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Trivy (Filesystem)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
+          scan-ref: 'vulnerabilities/api'
           format: 'sarif'
           output: 'trivy-fs-results.sarif'
           exit-code: '0'
           severity: 'CRITICAL,HIGH'
 
       - name: Upload risultati su GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'trivy-fs-results.sarif'
