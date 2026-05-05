@@ -11,7 +11,10 @@
     "config": {
         "platform": {
             "php": "8.2"
+        },
+        "audit": {
+            "abandoned": "ignore",
+            "block-insecure": false
         }
     }
-
 }
