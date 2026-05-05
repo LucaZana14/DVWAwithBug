@@ -26,8 +26,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      # ← senza questo step Trivy non vede vendor/ e non trova nulla
+      - name: Install Composer dependencies
+        run: |
+          cd vulnerabilities/api
+          composer install --no-dev --no-interaction --no-progress
+
       - name: Run Trivy (Filesystem)
-        uses: aquasecurity/trivy-action@v0.36.0 
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           format: 'sarif'
