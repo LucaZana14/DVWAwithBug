@@ -26,26 +26,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          tools: composer
-
-      - name: Rigenera composer.lock
-        run: |
-            cd vulnerabilities/api
-            composer config audit.block-insecure false
-            COMPOSER_AUDIT_ABANDON=ignore composer update --no-dev --no-interaction --no-progress --ignore-platform-reqs
-            git config user.name "github-actions"
-            git config user.email "github-actions@github.com"
-            git add composer.json composer.lock
-            git diff --staged --quiet || git commit -m "chore: fix composer.lock for PHP 8.2"
-            git push
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            COMPOSER_DISCARD_CHANGES: true
-
       - name: Run Trivy (Filesystem)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
