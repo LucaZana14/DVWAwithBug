@@ -19,6 +19,4 @@ COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 COPY --chown=www-data:www-data . .
 COPY --chown=www-data:www-data config/config.inc.php.dist config/config.inc.php
 
-# ← Questo è l'unico RUN per composer, senza swap, senza retry
-RUN cd /var/www/html/vulnerabilities/api \
- && composer install --no-interaction --no-progress --no-dev
+# vendor/ viene copiata già pronta dal COPY sopra, niente composer install qui
